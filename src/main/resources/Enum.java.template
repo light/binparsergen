@@ -1,0 +1,28 @@
+public static enum #name# {
+
+    ##values#
+    ;
+    
+    public final int i;
+    public final String description;
+    
+    private #name#(int i, String description) {
+        this.i = i;
+        this.description = description;
+    }
+    
+    public static #name# fromInt(int i) {
+        for( #name# val: values() ) {
+            if( val.i == i ) {
+                return val;
+            }
+        }
+        return null;
+    }
+    
+    @Override
+    public String toString() {
+        return i + "|" + name() + "|" + description;
+    }
+    
+}

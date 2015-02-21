@@ -1,0 +1,39 @@
+package #package#;
+
+##imports#
+
+public class #name# {
+    
+    ##fields#
+    
+    public void parse(InputStream $is) throws IOException {
+        SkipInputStream $sis = new SkipInputStream( $is );
+        EndianDataInputStream $eis = new EndianDataInputStream( $sis );
+        parse($sis, $eis);
+    }
+    
+    private void parse(SkipInputStream $sis, EndianDataInputStream $eis) throws IOException {
+        $sis.pushOffset();
+        ##extracts#
+        $sis.popOffset();
+    }
+    
+    @Override
+    public String toString() {
+        return toString( "" );
+    }
+
+    private String toString( String $indent ) {
+        String $desc;
+        StringBuilder $sb = new StringBuilder();
+        ##strings#
+        return $sb.toString();
+    }
+    
+    ##helpers#
+    
+    ##enums#
+    
+    ##structs#
+    
+}

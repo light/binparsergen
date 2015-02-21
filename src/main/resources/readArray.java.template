@@ -1,0 +1,9 @@
+private #type#[] readArray_#name#( SkipInputStream $sis, EndianDataInputStream $eis ) throws IOException {
+    int $n_#name# = (int)(#cardinality#);
+    #type#[] $array = new #type#[$n_#name#];
+    for( int $ = 0; $ < $n_#name#; $++ ) {
+        #skipTo#
+        $array[$] = #extractor#;
+    }
+    return $array;
+}

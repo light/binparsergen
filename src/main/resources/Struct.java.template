@@ -1,0 +1,32 @@
+public static class #name# {
+    
+    ##fields#
+    
+    ##paramFields#
+    
+    private #name#( SkipInputStream $sis, EndianDataInputStream $eis #args# ) throws IOException {
+        ##saveParams#
+        $sis.pushOffset();
+        ##extracts#
+        $sis.popOffset();
+    }
+    
+    @Override
+    public String toString() {
+        return toString( "" );
+    }
+
+    private String toString( String $indent ) {
+        String $desc;
+        StringBuilder $sb = new StringBuilder();
+        ##strings#
+        return $sb.toString();
+    }
+    
+    ##helpers#
+
+    ##enums#
+
+    ##structs#
+    
+}
