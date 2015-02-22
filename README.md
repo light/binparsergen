@@ -1,6 +1,6 @@
 # binparsergen - Binary parser generator
 
-This project aims to ease the creation of parser for binary data formats. It is comprised of a data definition language,
+This project aims to ease the creation of parsers for binary data formats. It is comprised of a data definition language,
 that allows to specify the data format in a readable and declarative way, and a code generatior (compiler) that generates
 Java classes from data definitions.
 
@@ -76,7 +76,7 @@ Nested structures can be defined and used as data types. Example :
        Version     version;
     }
     
-Structures can also have parameters which are specified in parenthesis after the struct name, and that which must be 
+Structures can also have parameters which are specified in parenthesis after the struct name, and that must be 
 specified when using the type (see *arrays* below) :
 
     struct MyFormat {
@@ -126,17 +126,17 @@ Arrays can be specified in two forms. The short form is the familiar square brac
        int32[items] values;
     }
     
-Arrays specified that way will read consecutive elements from the byte stream.
+Arrays specified that way will be read consecutively, without gaps, from the byte stream.
 
 #### Long form arrays
 
-The second 'long form' array syntax is as follows : 
+The second *long form* array syntax is as follows :
 
     array(<size>) { <offset>  <type>  <constraints> }
     
 The offset, type and constraints are specified the same way as for a single data type. In addition, the special value
 `$` represents the index of the array element being read. This allows to describe the common case of data format which
-store a list of offset at which to read array elements.
+use a list of offsets to index array elements.
 
     struct MyFormat {
        struct Collection(size) {
