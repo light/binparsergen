@@ -6,17 +6,15 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.bidouille.binparsergen.ViolatedConstraintException;
 import org.bidouille.binparsergen.template.IndentPrintWriter;
 import org.bidouille.binparsergen.template.Template;
+import org.bidouille.binparsergen.util.EndianDataInputStream;
 import org.bidouille.binparsergen.util.SkipInputStream;
-import org.bidouille.util.EndianDataInputStream;
 
 public class Struct extends Template {
     public Struct parent;
@@ -38,8 +36,11 @@ public class Struct extends Template {
     }
 
     public void writeImports( IndentPrintWriter writer ) {
-        for( Class<?> clazz : imports() ) {
+        for( Class<?> clazz : Arrays.asList( EndianDataInputStream.class, SkipInputStream.class, InputStream.class, IOException.class, ViolatedConstraintException.class, StringBuilder.class ) ) {
             writer.println( "import " + clazz.getCanonicalName() + ";" );
+        }
+        for( Struct subStruct : structs ) {
+            subStruct.writeImports( writer );
         }
     }
 
@@ -90,21 +91,6 @@ public class Struct extends Template {
         setParam( "args", params.stream().map( p -> ", int " + p ).collect( Collectors.joining() ) );
         setParam( "package", packageName );
         super.write( parent == null ? "/Parser.java.template" : "/Struct.java.template", writer );
-    }
-
-    private Set<Class<?>> imports() {
-        Set<Class<?>> imports = new HashSet<>( Arrays.asList(
-                EndianDataInputStream.class,
-                SkipInputStream.class,
-                InputStream.class,
-                IOException.class,
-                ViolatedConstraintException.class,
-                StringBuilder.class ) );
-        // imports.addAll( this.imports );
-        for( Struct gen : structs ) {
-            imports.addAll( gen.imports() );
-        }
-        return imports;
     }
 
 }

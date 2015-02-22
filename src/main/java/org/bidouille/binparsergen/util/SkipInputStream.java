@@ -56,8 +56,8 @@ public class SkipInputStream extends FilterInputStream {
     }
 
     /**
-     * Moves the stream forward to the offset specified. Discards current bitfield position if any.
-     * @param offset offset to stip to
+     * Moves the stream forward to the byte offset specified. Discards current bit position if any.
+     * @param offset byte offset to skip to
      * @throws EOFException if the required offset could not be reached
      * @throws IOException
      */
@@ -77,7 +77,7 @@ public class SkipInputStream extends FilterInputStream {
     }
 
     /**
-     * Read bit fields. Must read a multiple of 8 bits before resuming normal read operations.
+     * Read bit fields. Must read a multiple of 8 bits before resuming byte read operations.
      * @param n number of bits to read
      * @return
      * @throws IOException
