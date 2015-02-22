@@ -41,7 +41,6 @@ class MemoryFileManager extends ForwardingJavaFileManager<StandardJavaFileManage
 
         @Override
         public Class<?> findClass( String className ) throws ClassNotFoundException {
-            System.out.println("############ "+className);
             ByteArrayJavaFileObject classFile = classFiles.get( className );
             if( classFile == null ) {
                 throw new ClassNotFoundException( className );
