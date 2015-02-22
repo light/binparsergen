@@ -2,10 +2,12 @@ package org.bidouille.binparsergen.data;
 
 import java.io.PrintWriter;
 
+import org.bidouille.binparsergen.constraint.Constraint;
 import org.bidouille.binparsergen.map.DataMapping;
 
 public class DataInfo {
     public DataDesc desc;
+    public boolean anonymous;
     public String name;
     public String comment;
     public String offsetExpr;
@@ -25,6 +27,12 @@ public class DataInfo {
 
     protected void string( PrintWriter writer ) {
         desc.repr( writer, name );
+    }
+
+    protected void constraints( PrintWriter writer, String name ) {
+        for( Constraint constraint : desc.constraints ) {
+            constraint.writeCheck( writer, name );
+        }
     }
 
 }

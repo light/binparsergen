@@ -12,8 +12,7 @@ import java.lang.reflect.Method;
 import java.util.Map;
 
 import org.bidouille.binparsergen.BinParserGen;
-import org.bidouille.binparsergen.InvalidDefinitionException;
-import org.bidouille.binparsergen.ViolatedConstraintException;
+import org.bidouille.binparsergen.ConstraintViolationException;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
@@ -187,11 +186,55 @@ public class BinParserGenTest {
                 new byte[] { 65, 66, 67, 68, 69, 70, 71, 72 } );
 
         assertArrayEquals( (String[]) getField( instance, "v1" ), new String[] { "AB", "CD", "EF" } );
-        assertThat( instance, hasField( "v2", (short) (71*256+72) ) );
+        assertThat( instance, hasField( "v2", (short) (71 * 256 + 72) ) );
+    }
+
+    @Test
+    public void test_anonymous_array() throws Throwable {
+        Object instance = matchAgainst( ""
+                + "struct Test {\n"
+                + "   int8[3];\n"
+                + "   int8[2];\n"
+                + "   int8    v1;\n"
+                + "}",
+                BYTES );
+
+        assertThat( instance, hasField( "v1", (byte) 0xbc ) );
     }
 
     @Test
     public void test_long_form_array() throws Throwable {
+        Object instance = matchAgainst( ""
+                + "struct Test {\n"
+                + "   array(2) { int8 } name;\n"
+                + "}",
+                BYTES );
+
+        assertArrayEquals( (byte[]) getField( instance, "name" ), new byte[] { 0x12, 0x34 } );
+    }
+
+    @Test
+    public void test_long_form_array_with_constraints_ok() throws Throwable {
+        Object instance = matchAgainst( ""
+                + "struct Test {\n"
+                + "   array(2) { int8 !=0x56 } name;\n"
+                + "}",
+                BYTES );
+
+        assertArrayEquals( (byte[]) getField( instance, "name" ), new byte[] { 0x12, 0x34 } );
+    }
+
+    @Test( expected = ConstraintViolationException.class )
+    public void test_long_form_array_with_constraints_not_ok() throws Throwable {
+        Object instance = matchAgainst( ""
+                + "struct Test {\n"
+                + "   array(2) { int8 !=0x34 } name;\n"
+                + "}",
+                BYTES );
+    }
+
+    @Test
+    public void test_long_form_array_struct() throws Throwable {
         Object instance = matchAgainst( ""
                 + "struct Test {\n"
                 + "   struct Sub {\n"
@@ -259,7 +302,7 @@ public class BinParserGenTest {
                 BYTES );
     }
 
-    @Test( expected = ViolatedConstraintException.class )
+    @Test( expected = ConstraintViolationException.class )
     public void test_constraint_equals_not_ok() throws Throwable {
         Object instance = matchAgainst( ""
                 + "struct Test {\n"
@@ -277,11 +320,29 @@ public class BinParserGenTest {
                 new byte[] { 65, 66, 67 } );
     }
 
-    @Test( expected = ViolatedConstraintException.class )
+    @Test( expected = ConstraintViolationException.class )
     public void test_constraint_string_equals_not_ok() throws Throwable {
         Object instance = matchAgainst( ""
                 + "struct Test {\n"
                 + "   string(3) name =\"ABD\";\n"
+                + "}",
+                new byte[] { 65, 66, 67 } );
+    }
+
+    @Test
+    public void test_constraint_anonymous_ok() throws Throwable {
+        Object instance = matchAgainst( ""
+                + "struct Test {\n"
+                + "   string(3) =\"ABC\";\n"
+                + "}",
+                new byte[] { 65, 66, 67 } );
+    }
+
+    @Test( expected = ConstraintViolationException.class )
+    public void test_constraint_anonymous_not_ok() throws Throwable {
+        Object instance = matchAgainst( ""
+                + "struct Test {\n"
+                + "   string(3) =\"ABD\";\n"
                 + "}",
                 new byte[] { 65, 66, 67 } );
     }
@@ -295,7 +356,7 @@ public class BinParserGenTest {
                 BYTES );
     }
 
-    @Test( expected = ViolatedConstraintException.class )
+    @Test( expected = ConstraintViolationException.class )
     public void test_constraint_multiple_no_match() throws Throwable {
         Object instance = matchAgainst( ""
                 + "struct Test {\n"
@@ -369,7 +430,7 @@ public class BinParserGenTest {
                 BYTES );
     }
 
-    @Test( expected = ViolatedConstraintException.class )
+    @Test( expected = ConstraintViolationException.class )
     public void test_constraint_on_anonymous_fields_no_match() throws Throwable {
         Object instance = matchAgainst( ""
                 + "struct Test {\n"

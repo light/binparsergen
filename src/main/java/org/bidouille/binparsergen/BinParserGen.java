@@ -147,6 +147,7 @@ public class BinParserGen {
         List<Struct> topLevelStructs = new ArrayList<>();
         Struct currentStruct;
         DataBlock currentBlock;
+        int anonymous;
         private List<String> errors = new ArrayList<>();
 
         @Override
@@ -225,7 +226,8 @@ public class BinParserGen {
                 }
                 data = dataArray;
             }
-            data.name = ctx.NAME() != null ? ctx.NAME().getText() : null;
+            data.anonymous = ctx.NAME() == null;
+            data.name = ctx.NAME() != null ? ctx.NAME().getText() : "$anon_" + (anonymous++);
             data.comment = ctx.description() != null ? ctx.description().getText() : null;
             data.offsetExpr = ctx.offset() != null ? ctx.offset().expr().getText() : null;
             currentBlock.add( data );

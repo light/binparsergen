@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.bidouille.binparsergen.constraint.Constraint;
 import org.bidouille.binparsergen.template.IndentPrintWriter;
 import org.bidouille.binparsergen.template.Template;
 
@@ -33,7 +32,7 @@ public class DataBlock {
         for( Object data : datas ) {
             if( data instanceof DataInfo ) {
                 DataInfo info = (DataInfo) data;
-                if( info.name == null ) { // Datas without a name are simply read and discarded
+                if( info.anonymous ) { // Anonymous data is not stored
                     continue;
                 }
                 if( info.comment != null ) {
@@ -41,11 +40,9 @@ public class DataBlock {
                     writer.println( " * " + info.comment );
                     writer.println( " */" );
                 }
-                if( info.name != null ) {
-                    writer.print( "public " );
-                    info.declaration( writer );
-                    writer.println( " " + info.name + ";" );
-                }
+                writer.print( "public " );
+                info.declaration( writer );
+                writer.println( " " + info.name + ";" );
                 writer.println();
             } else {
                 ((DataBlock) data).writeFields( writer );
@@ -57,33 +54,22 @@ public class DataBlock {
         for( Object data : datas ) {
             if( data instanceof DataInfo ) {
                 DataInfo info = (DataInfo) data;
-                boolean hasConstraints = ! info.desc.constraints.isEmpty();
-                String name = info.name;
+                // For arrays constraints are checked when reading each element (see writeHelpers()).
+                boolean checkConstraints = !info.desc.constraints.isEmpty() && !(info instanceof DataArrayInfo);
                 if( info.offsetExpr != null ) {
                     writer.println( "$sis.skipTo( " + info.offsetExpr + " );" );
                 }
-                if( name == null && hasConstraints ) {
-                    writer.println("{");
-                    writer.pushIndent( "    " );
-                    name = "$tmp";
+                if( info.anonymous && checkConstraints ) {
                     info.declaration( writer );
-                    writer.println( " " + name + ";" );
+                    writer.println( " " + info.name + ";" );
                 }
-                if( name != null ) {
-                    writer.print( name + " = " );
+                if( !info.anonymous || checkConstraints ) {
+                    writer.print( info.name + " = " );
                 }
                 info.extraction( writer );
                 writer.println( ";" );
-                for( Constraint constraint : info.desc.constraints ) {
-                    writer.print( "if(!(" );
-                    constraint.writeTest( writer, name );
-                    writer.println( ")) {" );
-                    writer.println( "    throw new ViolatedConstraintException( \"" + name + constraint.op + escapeQuotes( constraint.value ) + "\", "+name+" );" );
-                    writer.println( "}" );
-                }
-                if( info.name == null && hasConstraints ) {
-                    writer.popIndent();
-                    writer.println("}");
+                if( checkConstraints ) {
+                    info.constraints( writer, info.name );
                 }
             } else {
                 ((DataBlock) data).writeExtracts( writer );
@@ -95,7 +81,7 @@ public class DataBlock {
         for( Object data : datas ) {
             if( data instanceof DataInfo ) {
                 DataInfo info = (DataInfo) data;
-                if( info.name != null ) {
+                if( !info.anonymous ) {
                     String desc = (info.comment != null ? escapeQuotes( info.comment ) : info.name);
                     writer.println( "$desc = \"" + desc + " : \";" );
                     writer.print( "$sb.append(\"\\n\");" );
@@ -115,21 +101,9 @@ public class DataBlock {
         for( Object data : datas ) {
             if( data instanceof DataArrayInfo ) {
                 DataArrayInfo arrayInfo = (DataArrayInfo) data;
-                StringWriter out = new StringWriter();
-                arrayInfo.desc.declaration( new PrintWriter( out ) );
-                String declaration = out.toString();
-                out = new StringWriter();
-                arrayInfo.desc.extraction( new PrintWriter( out ) );
-                String extraction = out.toString();
-                uniqueTypes.put( declaration, arrayInfo.desc );
-
-                Template template = new Template();
-                template.setParam( "name", arrayInfo.name );
-                template.setParam( "type", declaration );
-                template.setParam( "skipTo", arrayInfo.elementOffsetExpr != null ? "$sis.skipTo(" + arrayInfo.elementOffsetExpr + ");" : "" );
-                template.setParam( "extractor", extraction );
-                template.setParam( "cardinality", arrayInfo.cardinalityExpr );
-                template.write( "/readArray.java.template", writer );
+                ReadHelperTemplate readHelper = new ReadHelperTemplate( arrayInfo );
+                uniqueTypes.put( readHelper.declaration, arrayInfo.desc );
+                readHelper.write( writer );
             }
         }
         for( Entry<String, DataDesc> entry : uniqueTypes.entrySet() ) {
@@ -142,7 +116,37 @@ public class DataBlock {
         }
     }
 
-    private static String escapeQuotes( String s ) {
+    public static class ReadHelperTemplate extends Template {
+        private DataArrayInfo arrayInfo;
+        private String declaration;
+
+        public ReadHelperTemplate( DataArrayInfo arrayInfo ) {
+            this.arrayInfo = arrayInfo;
+            StringWriter out = new StringWriter();
+            arrayInfo.desc.declaration( new PrintWriter( out ) );
+            declaration = out.toString();
+            out = new StringWriter();
+            arrayInfo.desc.extraction( new PrintWriter( out ) );
+            String extraction = out.toString();
+
+            setParam( "name", arrayInfo.name );
+            setParam( "type", declaration );
+            setParam( "skipTo", arrayInfo.elementOffsetExpr != null ? "$sis.skipTo(" + arrayInfo.elementOffsetExpr + ");" : "" );
+            setParam( "extractor", extraction );
+            setParam( "cardinality", arrayInfo.cardinalityExpr );
+        }
+
+        public void write( IndentPrintWriter writer ) throws IOException {
+            write( "/readArray.java.template", writer );
+        }
+
+        public void writeConstraints( IndentPrintWriter writer ) {
+            arrayInfo.constraints( writer, "$array[$]" );
+        }
+
+    }
+
+    public static String escapeQuotes( String s ) {
         return s.replace( "\"", "\\\"" );
     }
 

@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.bidouille.binparsergen.ViolatedConstraintException;
+import org.bidouille.binparsergen.ConstraintViolationException;
 import org.bidouille.binparsergen.template.IndentPrintWriter;
 import org.bidouille.binparsergen.template.Template;
 import org.bidouille.binparsergen.util.EndianDataInputStream;
@@ -36,7 +36,7 @@ public class Struct extends Template {
     }
 
     public void writeImports( IndentPrintWriter writer ) {
-        for( Class<?> clazz : Arrays.asList( EndianDataInputStream.class, SkipInputStream.class, InputStream.class, IOException.class, ViolatedConstraintException.class, StringBuilder.class ) ) {
+        for( Class<?> clazz : Arrays.asList( EndianDataInputStream.class, SkipInputStream.class, InputStream.class, IOException.class, ConstraintViolationException.class, StringBuilder.class ) ) {
             writer.println( "import " + clazz.getCanonicalName() + ";" );
         }
         for( Struct subStruct : structs ) {

@@ -4,6 +4,7 @@ private #type#[] readArray_#name#( SkipInputStream $sis, EndianDataInputStream $
     for( int $ = 0; $ < $n_#name#; $++ ) {
         #skipTo#
         $array[$] = #extractor#;
+        ##constraints#
     }
     return $array;
 }
