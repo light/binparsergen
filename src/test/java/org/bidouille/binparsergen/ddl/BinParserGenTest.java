@@ -178,6 +178,19 @@ public class BinParserGenTest {
     }
 
     @Test
+    public void test_short_form_array_parametrized_type() throws Throwable {
+        Object instance = matchAgainst( ""
+                + "struct Test {\n"
+                + "   string(2)[3] v1;\n"
+                + "   int16    v2;\n"
+                + "}",
+                new byte[] { 65, 66, 67, 68, 69, 70, 71, 72 } );
+
+        assertArrayEquals( (String[]) getField( instance, "v1" ), new String[] { "AB", "CD", "EF" } );
+        assertThat( instance, hasField( "v2", (short) (71*256+72) ) );
+    }
+
+    @Test
     public void test_long_form_array() throws Throwable {
         Object instance = matchAgainst( ""
                 + "struct Test {\n"
