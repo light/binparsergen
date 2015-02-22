@@ -17,6 +17,9 @@ The data type is either a built-in primitive type or a user defined type.
 
 The field name can be any valid Java identifier, with the exception that it must not start with a `$` character.
 
+The description is an optional string, enclosed in double quotes, that will be used when formatting the `toString()`
+output of the parser.
+
 Example :
 
     struct MyFormat {
