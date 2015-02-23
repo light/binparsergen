@@ -104,6 +104,8 @@ public class DataBlock {
                 ReadHelperTemplate readHelper = new ReadHelperTemplate( arrayInfo );
                 uniqueTypes.put( readHelper.declaration, arrayInfo.desc );
                 readHelper.write( writer );
+            } else if( data instanceof DataBlock ) {
+                ((DataBlock) data).writeHelpers( writer );
             }
         }
         for( Entry<String, DataDesc> entry : uniqueTypes.entrySet() ) {

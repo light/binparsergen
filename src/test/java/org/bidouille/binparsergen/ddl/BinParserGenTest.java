@@ -422,6 +422,19 @@ public class BinParserGenTest {
     }
 
     @Test
+    public void test_conditional_with_array() throws Throwable {
+        Object instance = matchAgainst( ""
+                + "struct Test {\n"
+                + "   int8 v1;\n"
+                + "   if( v1 == 0x12 ) {\n"
+                + "      int8[2] v2;\n"
+                + "   }\n"
+                + "}",
+                BYTES );
+        assertArrayEquals( (byte[]) getField( instance, "v2" ), new byte[] { 0x34, 0x56 } );
+    }
+
+    @Test
     public void test_constraint_on_anonymous_fields() throws Throwable {
         Object instance = matchAgainst( ""
                 + "struct Test {\n"
