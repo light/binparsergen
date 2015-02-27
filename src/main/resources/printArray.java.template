@@ -1,10 +1,10 @@
 private static void printArray_#type#( StringBuilder $sb, String $indent, #type#[] $array ) {
-    $sb.append( "[" );
+    $sb.append( "(" ).append( $array.length ).append( ") [" );
     for( int $ = 0; $ < $array.length; $++ ) {
         if( $ != 0 ) {
-            $sb.append( "\n" ).append( $indent ).append( "," );
+            $sb.append( "," );
         }
         #printer#
     }
-    $sb.append( "\n" ).append( $indent ).append( "]" );
+    $sb.append( "]" );
 }

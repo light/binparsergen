@@ -51,8 +51,15 @@ public class SkipInputStream extends FilterInputStream {
     }
 
     @Override
-    public boolean markSupported() {
-        return false;
+    public synchronized void mark( int readlimit ) {
+        offsets.push( offset );
+        super.mark( readlimit );
+    }
+
+    @Override
+    public synchronized void reset() throws IOException {
+        super.reset();
+        offset = offsets.pop();
     }
 
     /**
@@ -70,9 +77,24 @@ public class SkipInputStream extends FilterInputStream {
             return;
         }
 
-        skip( offset - this.offset );
+        boolean zeroBytesSkipped = false;
+        while( this.offset != offset ) {
+            long skipped = skip( offset - this.offset );
+            if( skipped == 0 && zeroBytesSkipped ) {
+                // Zero bytes skipped twice in a row ? Stop trying.
+                break;
+            }
+            zeroBytesSkipped = skipped == 0;
+        }
+
         if( this.offset != offset ) {
-            throw new EOFException( "Failed to skip to " + offset + " bytes : " + this.offset );
+            // Zero bytes were skipped twice in a row, that's not good, try to advance by reading from the stream instead.
+            while( this.offset != offset ) {
+                int read = read();
+                if( read == -1 ) {
+                    throw new EOFException( "Failed to skip to offset " + offset + ", actual offset : " + this.offset );
+                }
+            }
         }
     }
 

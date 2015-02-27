@@ -25,8 +25,8 @@ Example :
     struct MyFormat {
        string(4)   magic ="HELO";
        int32       length             "Length of the file in bytes";
-       bits(3)     some_value;
-       bits(5)     another_value;
+       uint(3)     some_value;
+       uint(5)     another_value;
     }
 
 ### Primitive data types
@@ -40,24 +40,28 @@ DDL type        |     Description    |  Java Type
 `int24`         | 3-byte signed integer         | `int`
 `int32`         | 4-byte signed integer         | `int`
 `int64`         | 8-byte signed integer         | `long`
-`bits(n)`       | n-bits unsigned integer       | `int`
+`uint8`         | Single byte unsigned integer  | `int`
+`uint16`        | Two-byte unsigned integer     | `int`
+`uint24`        | 3-byte unsigned integer       | `int`
+`uint32`        | 4-byte unsigned integer       | `long`
+`uint(n)`       | n-bits unsigned integer       | `int`
 `string(n)`     | ASCII string of n bytes       | `String`
 
 All integer types are big-endian and bits are read in MSB to LSB order.
 
-The `bits(n)` type allows to read integers smaller than one byte. `n` must be between 1 and 7, inclusive. A multiple
+The `uint(n)` type allows to read integers smaller than one byte. `n` must be between 1 and 7, inclusive. A multiple
 of 8 bits must always be read at any one time before reading more non-bits data. For example the following is valid :
 
     struct OnByteBoundary {
-       bits(7)     foo;
-       bits(1)     bar;
+       uint(7)     foo;
+       uint(1)     bar;
        int8        baz;
     }
 
 But the following is not :
 
     struct NotOnByteBoundary {
-       bits(7)     foo;
+       uint(7)     foo;
        int8        baz;
     }
 
@@ -178,9 +182,9 @@ Quite often data present in the format must be ignored, because it is unused or 
 do not specify a name for the data element. Constraints, if present, will still be checked.
 
     struct MyFormat {
-       bits(2)         flags;
-       bits(2);        # reserved
-       bits(4)         more_flags;
+       uint(2)         flags;
+       uint(2);        # reserved
+       uint(4)         more_flags;
     }
 
 ## Code generation
@@ -208,3 +212,12 @@ like this :
 ## Remarks
 
 This project is in progress, syntax or interfaces might change at a later time. I am very much open to suggestions, especially regarding syntax and features.
+
+## Changelog
+
+### v0.2
+* Renamed bits() to uint()
+* Added uint8, uint16, uint24 and uint32 types
+
+### v0.1
+* Initial release

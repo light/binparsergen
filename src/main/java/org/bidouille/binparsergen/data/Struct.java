@@ -68,9 +68,14 @@ public class Struct extends Template {
         datas.writeStrings( writer );
     }
 
-    // Creates readArray_* and printArray_* helper functions for all arrays
-    public void writeHelpers( IndentPrintWriter writer ) throws IOException {
-        datas.writeHelpers( writer );
+    // Creates readArray_* helper functions for all arrays
+    public void writeReadHelpers( IndentPrintWriter writer ) throws IOException {
+        datas.writeReadHelpers( writer );
+    }
+
+    // Creates printArray_* helper functions for all data types
+    public void writePrintHelpers( IndentPrintWriter writer ) throws IOException {
+        datas.writePrintHelpers( writer );
     }
 
     public void writeStructs( IndentPrintWriter writer ) throws IOException {

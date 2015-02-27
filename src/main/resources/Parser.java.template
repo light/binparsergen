@@ -30,7 +30,8 @@ public class #name# {
         return $sb.toString();
     }
     
-    ##helpers#
+    ##readHelpers#
+    ##printHelpers#
     
     ##enums#
     

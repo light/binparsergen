@@ -27,9 +27,10 @@ public class EndianDataInputStream extends DataInputStream {
 
     public int readIntLE() throws IOException {
         readFully( longBuffer, 0, 4 );
-        return (((longBuffer[3] & 0xff) << 24) |
-                ((longBuffer[2] & 0xff) << 16) |
-                ((longBuffer[1] & 0xff) << 8) | ((longBuffer[0] & 0xff) << 0));
+        return (((longBuffer[3] & 0xff) << 24)
+                | ((longBuffer[2] & 0xff) << 16)
+                | ((longBuffer[1] & 0xff) << 8)
+                | ((longBuffer[0] & 0xff) << 0));
     }
 
     public long readLongLE() throws IOException {
@@ -50,16 +51,32 @@ public class EndianDataInputStream extends DataInputStream {
 
     public long readUnsignedIntLE() throws IOException {
         readFully( longBuffer, 0, 4 );
-        return (((long) (longBuffer[3] & 0xff) << 24) |
-                ((longBuffer[2] & 0xff) << 16) |
-                ((longBuffer[1] & 0xff) << 8) | ((longBuffer[0] & 0xff) << 0));
+        return (((long) (longBuffer[3] & 0xff) << 24)
+                | ((longBuffer[2] & 0xff) << 16)
+                | ((longBuffer[1] & 0xff) << 8)
+                | ((longBuffer[0] & 0xff) << 0));
     }
 
     public int readInt24() throws IOException {
         readFully( longBuffer, 0, 3 );
+        return (((longBuffer[0] & 0xff) << 24)
+                | ((longBuffer[1] & 0xff) << 16)
+                | ((longBuffer[2] & 0xff) << 8)) >> 8;
+    }
+
+    public int readUnsignedInt24() throws IOException {
+        readFully( longBuffer, 0, 3 );
         return (((longBuffer[0] & 0xff) << 16)
                 | ((longBuffer[1] & 0xff) << 8)
                 | ((longBuffer[2] & 0xff) << 0));
+    }
+
+    public long readUnsignedInt() throws IOException {
+        readFully( longBuffer, 0, 4 );
+        return (((long) (longBuffer[0] & 0xff) << 24)
+                | ((longBuffer[1] & 0xff) << 16)
+                | ((longBuffer[2] & 0xff) << 8)
+                | ((longBuffer[3] & 0xff) << 0));
     }
 
     /**

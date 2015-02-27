@@ -84,9 +84,9 @@ public class DataBlock {
                 if( !info.anonymous ) {
                     String desc = (info.comment != null ? escapeQuotes( info.comment ) : info.name);
                     writer.println( "$desc = \"" + desc + " : \";" );
-                    writer.print( "$sb.append(\"\\n\");" );
                     writer.print( "$sb.append($indent); $sb.append($desc);" );
                     info.string( writer );
+                    writer.print( "$sb.append(\"\\n\");" );
                     writer.println();
                 }
             } else {
@@ -96,18 +96,21 @@ public class DataBlock {
     }
 
     // Creates readArray_* and printArray_* helper functions for all arrays
-    public void writeHelpers( IndentPrintWriter writer ) throws IOException {
-        Map<String, DataDesc> uniqueTypes = new HashMap<>();
+    public void writeReadHelpers( IndentPrintWriter writer ) throws IOException {
         for( Object data : datas ) {
             if( data instanceof DataArrayInfo ) {
                 DataArrayInfo arrayInfo = (DataArrayInfo) data;
                 ReadHelperTemplate readHelper = new ReadHelperTemplate( arrayInfo );
-                uniqueTypes.put( readHelper.declaration, arrayInfo.desc );
                 readHelper.write( writer );
             } else if( data instanceof DataBlock ) {
-                ((DataBlock) data).writeHelpers( writer );
+                ((DataBlock) data).writeReadHelpers( writer );
             }
         }
+    }
+
+    public void writePrintHelpers( IndentPrintWriter writer ) throws IOException {
+        Map<String, DataDesc> uniqueTypes = new HashMap<>();
+        getUniqueTypes( uniqueTypes );
         for( Entry<String, DataDesc> entry : uniqueTypes.entrySet() ) {
             Template template = new Template();
             template.setParam( "type", entry.getKey() );
@@ -115,6 +118,18 @@ public class DataBlock {
             entry.getValue().repr( new PrintWriter( out ), "$array[$]" );
             template.setParam( "printer", out.toString() );
             template.write( "/printArray.java.template", writer );
+        }
+    }
+
+    private void getUniqueTypes(Map<String, DataDesc> uniqueTypes) {
+        for( Object data : datas ) {
+            if( data instanceof DataArrayInfo ) {
+                DataArrayInfo arrayInfo = (DataArrayInfo) data;
+                ReadHelperTemplate readHelper = new ReadHelperTemplate( arrayInfo );
+                uniqueTypes.put( readHelper.declaration, arrayInfo.desc );
+            } else if( data instanceof DataBlock ) {
+                ((DataBlock) data).getUniqueTypes( uniqueTypes );
+            }
         }
     }
 

@@ -30,68 +30,158 @@ public class BinParserGenTest {
     }
 
     @Test
-    public void test_int8() throws Throwable {
+    public void test_int8_positive() throws Throwable {
         Object instance = matchAgainst( ""
                 + "struct Test {\n"
                 + "   int8 name;\n"
                 + "}",
-                BYTES );
-        assertThat( instance, hasField( "name", (byte) 0x12 ) );
+                new byte[] { 0x7f } );
+        assertThat( instance, hasField( "name", (byte) 0x7f ) );
     }
 
     @Test
-    public void test_int16() throws Throwable {
+    public void test_int8_negative() throws Throwable {
+        Object instance = matchAgainst( ""
+                + "struct Test {\n"
+                + "   int8 name;\n"
+                + "}",
+                new byte[] { (byte) 0x80 } );
+        assertThat( instance, hasField( "name", (byte) 0x80 ) );
+    }
+
+    @Test
+    public void test_int16_positive() throws Throwable {
         Object instance = matchAgainst( ""
                 + "struct Test {\n"
                 + "   int16 name;\n"
                 + "}",
-                BYTES );
-        assertThat( instance, hasField( "name", (short) 0x1234 ) );
+                new byte[] { 0x7f, (byte) 0xab } );
+        assertThat( instance, hasField( "name", (short) 0x7fab ) );
     }
 
     @Test
-    public void test_int24() throws Throwable {
+    public void test_int16_negative() throws Throwable {
+        Object instance = matchAgainst( ""
+                + "struct Test {\n"
+                + "   int16 name;\n"
+                + "}",
+                new byte[] { (byte) 0x80, 0x12 } );
+        assertThat( instance, hasField( "name", (short) 0x8012 ) );
+    }
+
+    @Test
+    public void test_int24_positive() throws Throwable {
         Object instance = matchAgainst( ""
                 + "struct Test {\n"
                 + "   int24 name;\n"
                 + "}",
-                BYTES );
-        assertThat( instance, hasField( "name", 0x123456 ) );
+                new byte[] { 0x7f, (byte) 0xab, (byte) 0xcd } );
+        assertThat( instance, hasField( "name", 0x7fabcd ) );
     }
 
     @Test
-    public void test_int32() throws Throwable {
+    public void test_int24_negative() throws Throwable {
+        Object instance = matchAgainst( ""
+                + "struct Test {\n"
+                + "   int24 name;\n"
+                + "}",
+                new byte[] { (byte) 0x80, 0x12, 0x34 } );
+        assertThat( instance, hasField( "name", 0xff801234 ) );
+    }
+
+    @Test
+    public void test_int32_positive() throws Throwable {
         Object instance = matchAgainst( ""
                 + "struct Test {\n"
                 + "   int32 name;\n"
                 + "}",
-                BYTES );
-        assertThat( instance, hasField( "name", 0x12345678 ) );
+                new byte[] { 0x7f, (byte) 0xab, (byte) 0xcd, (byte) 0xef } );
+        assertThat( instance, hasField( "name", 0x7fabcdef ) );
     }
 
     @Test
-    public void test_int64() throws Throwable {
+    public void test_int32_negative() throws Throwable {
+        Object instance = matchAgainst( ""
+                + "struct Test {\n"
+                + "   int32 name;\n"
+                + "}",
+                new byte[] { (byte) 0x80, 0x12, 0x34, 0x56 } );
+        assertThat( instance, hasField( "name", 0x80123456 ) );
+    }
+
+    @Test
+    public void test_int64_positive() throws Throwable {
         Object instance = matchAgainst( ""
                 + "struct Test {\n"
                 + "   int64 name;\n"
                 + "}",
-                BYTES );
-        assertThat( instance, hasField( "name", 0x123456789abcdef0L ) );
+                new byte[] { 0x7f, (byte) 0xab, (byte) 0xcd, (byte) 0xef, 0x12, 0x34, 0x56, 0x78 } );
+        assertThat( instance, hasField( "name", 0x7fabcdef12345678L ) );
     }
 
     @Test
-    public void test_bits() throws Throwable {
+    public void test_int64_negative() throws Throwable {
         Object instance = matchAgainst( ""
                 + "struct Test {\n"
-                + "   bits(1) bits_1;\n"
-                + "   bits(2) bits_2;\n"
-                + "   bits(5) bits_5;\n"
+                + "   int64 name;\n"
                 + "}",
-                new byte[] { (byte) 0xa5, (byte) 0xc3 } );
+                new byte[] { (byte) 0x80, 0x12, 0x34, 0x56, 0x78, (byte) 0x9a, (byte) 0xbc, (byte) 0xde } );
+        assertThat( instance, hasField( "name", 0x80123456789abcdeL ) );
+    }
+
+    @Test
+    public void test_uint8() throws Throwable {
+        Object instance = matchAgainst( ""
+                + "struct Test {\n"
+                + "   uint8 name;\n"
+                + "}",
+                new byte[] { (byte) 0x80 } );
+        assertThat( instance, hasField( "name", 0x80 ) );
+    }
+
+    @Test
+    public void test_uint16() throws Throwable {
+        Object instance = matchAgainst( ""
+                + "struct Test {\n"
+                + "   uint16 name;\n"
+                + "}",
+                new byte[] { (byte) 0x80, 0x12 } );
+        assertThat( instance, hasField( "name", 0x8012 ) );
+    }
+
+    @Test
+    public void test_uint24() throws Throwable {
+        Object instance = matchAgainst( ""
+                + "struct Test {\n"
+                + "   uint24 name;\n"
+                + "}",
+                new byte[] { (byte) 0x80, 0x12, 0x34 } );
+        assertThat( instance, hasField( "name", 0x801234 ) );
+    }
+
+    @Test
+    public void test_uint32() throws Throwable {
+        Object instance = matchAgainst( ""
+                + "struct Test {\n"
+                + "   uint32 name;\n"
+                + "}",
+                new byte[] { (byte) 0x80, 0x12, 0x34, 0x56 } );
+        assertThat( instance, hasField( "name", 0x80123456L ) );
+    }
+
+    @Test
+    public void test_uint_n() throws Throwable {
+        Object instance = matchAgainst( ""
+                + "struct Test {\n"
+                + "   uint(1) bits_1;\n"
+                + "   uint(2) bits_2;\n"
+                + "   uint(5) bits_5;\n"
+                + "}",
+                new byte[] { (byte) 0xba } );
 
         assertThat( instance, hasField( "bits_1", 0b1 ) );
         assertThat( instance, hasField( "bits_2", 0b01 ) );
-        assertThat( instance, hasField( "bits_5", 0b00101 ) );
+        assertThat( instance, hasField( "bits_5", 0b11010 ) );
     }
 
     @Test
@@ -392,6 +482,18 @@ public class BinParserGenTest {
                 + "}",
                 BYTES );
         assertThat( instance, hasField( "v3", (byte) 0x34 ) );
+    }
+
+    @Test
+    public void test_conditional_helpers() throws Throwable {
+        Object instance = matchAgainst( ""
+                + "struct Test {\n"
+                + "   int8[2] v1;\n"
+                + "   if( 1 != 2 ) {\n"
+                + "      int8[2] v2;\n"
+                + "   }\n"
+                + "}",
+                BYTES );
     }
 
     @Test

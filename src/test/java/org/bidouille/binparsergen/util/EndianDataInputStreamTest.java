@@ -42,10 +42,30 @@ public class EndianDataInputStreamTest {
     }
 
     @Test
-    public void test_readint24() throws IOException {
+    public void test_readInt24() throws IOException {
         in = makeStream( new byte[] { 0x12, 0x34, 0x56, 0x78 } );
         assertEquals( 0x123456, in.readInt24() );
         assertEquals( 0x78, in.readByte() );
+    }
+
+    @Test
+    public void test_readInt24_negative() throws IOException {
+        in = makeStream( new byte[] { (byte) 0x80, 0x34, 0x56, 0x78 } );
+        assertEquals( 0xff803456, in.readInt24() );
+        assertEquals( 0x78, in.readByte() );
+    }
+
+    @Test
+    public void test_readUnsignedInt24() throws IOException {
+        in = makeStream( new byte[] { (byte) 0x80, 0x34, 0x56, 0x78 } );
+        assertEquals( 0x803456, in.readUnsignedInt24() );
+        assertEquals( 0x78, in.readByte() );
+    }
+
+    @Test
+    public void test_readUnsignedInt() throws IOException {
+        in = makeStream( new byte[] { (byte) 0x80, 0x34, 0x56, 0x78 } );
+        assertEquals( 0x80345678L, in.readUnsignedInt() );
     }
 
     @Test

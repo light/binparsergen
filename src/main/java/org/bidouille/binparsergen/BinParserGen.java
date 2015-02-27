@@ -245,7 +245,15 @@ public class BinParserGen {
                 desc = new INT32_DataDesc();
             } else if( "int64".equals( type ) ) {
                 desc = new INT64_DataDesc();
-            } else if( "bits".equals( type ) ) {
+            } else if( "uint8".equals( type ) ) {
+                desc = new UINT8_DataDesc();
+            } else if( "uint16".equals( type ) ) {
+                desc = new UINT16_DataDesc();
+            } else if( "uint24".equals( type ) ) {
+                desc = new UINT24_DataDesc();
+            } else if( "uint32".equals( type ) ) {
+                desc = new UINT32_DataDesc();
+            } else if( "uint".equals( type ) ) {
                 int bits = getInt( argList, 0 );
                 desc = new BITS_DataDesc( bits );
             } else if( "string".equals( type ) ) {
@@ -306,6 +314,10 @@ public class BinParserGen {
     private static class INT32_DataDesc extends DataDesc { public INT32_DataDesc() { super( "int", "$eis.readInt()"     ); } }
     private static class INT64_DataDesc extends DataDesc { public INT64_DataDesc() { super( "long", "$eis.readLong()"   ); } }
     private static class BITS_DataDesc  extends DataDesc { public BITS_DataDesc( int bits ) { super( "int", "$sis.readBits( " + bits + " )" ); } }
+    private static class UINT8_DataDesc  extends DataDesc { public UINT8_DataDesc()  { super( "int", "$eis.readUnsignedByte()"   ); } }
+    private static class UINT16_DataDesc  extends DataDesc { public UINT16_DataDesc()  { super( "int", "$eis.readUnsignedShort()"   ); } }
+    private static class UINT24_DataDesc  extends DataDesc { public UINT24_DataDesc()  { super( "int", "$eis.readUnsignedInt24()"   ); } }
+    private static class UINT32_DataDesc  extends DataDesc { public UINT32_DataDesc()  { super( "long", "$eis.readUnsignedInt()"   ); } }
     //@formatter:on
 
     private static class FIXED_STRING_DataDesc extends DataDesc {
