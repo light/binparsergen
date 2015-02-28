@@ -208,6 +208,19 @@ like this :
     System.out.println( myFormat );
 ```
 
+## Usage
+
+To use this library in your project, either use Maven :
+
+    <dependency>
+      <groupId>org.bidouille.binparsergen</groupId>
+      <artifactId>binparsergen</artifactId>
+      <version>0.2</version>
+    </dependency>
+
+
+Or grab the `jar` from the repository at this location : http://archiva.bidouille.org/archiva/repository/releases/org/bidouille/binparsergen/binparsergen/0.2/
+
 ## Remarks
 
 This project is in progress, syntax or interfaces might change at a later time. I am very much open to suggestions, especially regarding syntax and features.
