@@ -92,7 +92,7 @@ public class SkipInputStream extends FilterInputStream {
             while( this.offset != offset ) {
                 int read = read();
                 if( read == -1 ) {
-                    throw new EOFException( "Failed to skip to offset " + offset + ", actual offset : " + this.offset );
+                    throw new EOFException( "EOF reached when trying to skip to offset " + offset + ", end offset : " + this.offset );
                 }
             }
         }
@@ -101,29 +101,44 @@ public class SkipInputStream extends FilterInputStream {
     /**
      * Read bit fields. Must read a multiple of 8 bits before resuming byte read operations.
      * @param n number of bits to read
-     * @return
-     * @throws IOException
+     * @return the bits as a integer value or -1 if at end of stream
+     * @throws IOException if more than zero but less than requested amount of bits can be read
      */
     public int readBits( int n ) throws IOException {
-        if( offset_bits == 0 ) {
-            b = super.read();
-            if( b == -1 ) {
-                return -1;
-            }
+        if( n == 0 ) {
+            return 0;
         }
-        if( n > 8 - offset_bits ) {
-            throw new IOException( "Reading bits across byte boundaries is not supported" );
-        }
-        int shift = 8 - offset_bits - n;
-        int mask = 0xff >>> (8 - n);
-        int bits = (b & (mask << shift)) >>> shift;
 
-        offset_bits += n;
-        if( offset_bits == 8 ) {
-            offset_bits = 0;
-            offset++;
+        int val = 0;
+        boolean first = true;
+        while( n != 0 ) {
+
+            if( offset_bits == 0 ) {
+                b = super.read();
+                if( b == -1 ) {
+                    if( first ) {
+                        return -1;
+                    }
+                    throw new EOFException( "EOF reached while reading bits" );
+                }
+            }
+
+            int bits = Math.min( n, 8 - offset_bits );
+            val <<= bits;
+
+            int shift = 8 - offset_bits - bits;
+            int mask = 0xff >>> (8 - bits);
+            val |= (b & (mask << shift)) >>> shift;
+
+            offset_bits += bits;
+            if( offset_bits == 8 ) {
+                offset_bits = 0;
+                offset++;
+            }
+            n -= bits;
+            first = false;
         }
-        return bits;
+        return val;
     }
 
     /**
@@ -131,6 +146,13 @@ public class SkipInputStream extends FilterInputStream {
      */
     public long getOffset() {
         return offset;
+    }
+
+    /**
+     * Returns the current bit offset within the current byte.
+     */
+    public long getBitOffset() {
+        return offset_bits;
     }
 
     /**

@@ -62,18 +62,25 @@ public class SkipInputStreamTest {
         assertEquals( 0xa, in.readBits( 4 ) );
     }
 
-    @Test( expected = IOException.class )
+    @Test
     public void test_readBits_across_byte_boundary() throws IOException {
         in = new SkipInputStream( new ByteArrayInputStream( new byte[] { (byte) 0xb1, (byte) 0xa5 } ) );
         in.readBits( 6 );
-        in.readBits( 6 );
+        assertEquals( 0b011010, in.readBits( 6 ) );
     }
 
     @Test
-    public void test_read_on_byte_boundary() throws IOException {
+    public void test_readBits_on_byte_boundary() throws IOException {
         in = new SkipInputStream( new ByteArrayInputStream( new byte[] { (byte) 0xb1, (byte) 0xa5 } ) );
         assertEquals( 0xb1, in.readBits( 8 ) );
         assertEquals( 0xa5, in.read() );
+    }
+
+    @Test
+    public void test_readBits_two_byte_boundaries() throws IOException {
+        in = new SkipInputStream( new ByteArrayInputStream( new byte[] { (byte) 0xb1, (byte) 0xa5, (byte) 0xc5 } ) );
+        in.readBits( 6 );
+        assertEquals( 0b011010010111, in.readBits( 12 ) );
     }
 
     @Test( expected = IOException.class )
@@ -113,6 +120,13 @@ public class SkipInputStreamTest {
         assertEquals( -1, in.readBits( 1 ) );
     }
 
+    @Test( expected = IOException.class )
+    public void test_readBits_straddling_end_of_stream() throws IOException {
+        in = new SkipInputStream( new ByteArrayInputStream( new byte[] { (byte) 0xb1 } ) );
+        in.readBits( 2 );
+        in.readBits( 8 );
+    }
+
     // //////////////////// getOffset
 
     @Test
@@ -123,6 +137,28 @@ public class SkipInputStreamTest {
         assertEquals( 1, in.getOffset() );
         in.readBits( 8 );
         assertEquals( 2, in.getOffset() );
+    }
+
+    // //////////////////// getBitOffset
+
+    @Test
+    public void test_getBitOffset() throws IOException {
+        in = new SkipInputStream( new ByteArrayInputStream( new byte[] { 0x01, 0x02, 0x03 } ) );
+        assertEquals( 0, in.getBitOffset() );
+        in.read();
+        assertEquals( 0, in.getBitOffset() );
+        in.readBits( 4 );
+        assertEquals( 4, in.getBitOffset() );
+        in.readBits( 12 );
+        assertEquals( 0, in.getBitOffset() );
+    }
+
+    @Test
+    public void test_getBitOffset_after_skip() throws IOException {
+        in = new SkipInputStream( new ByteArrayInputStream( new byte[] { 0x01, 0x02, 0x03 } ) );
+        in.readBits( 2 );
+        in.skipTo( 1 );
+        assertEquals( 0, in.getBitOffset() );
     }
 
     // //////////////////// pushOffset

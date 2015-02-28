@@ -49,8 +49,7 @@ DDL type        |     Description    |  Java Type
 
 All integer types are big-endian and bits are read in MSB to LSB order.
 
-The `uint(n)` type allows to read integers smaller than one byte. `n` must be between 1 and 7, inclusive. A multiple
-of 8 bits must always be read at any one time before reading more non-bits data. For example the following is valid :
+The `uint(n)` type allows to read integers made up of any number of bits. `n` must be between 1 and 31, inclusive. A multiple of 8 bits must always be read at any one time before reading other data types. For example the following is valid :
 
     struct OnByteBoundary {
        uint(7)     foo;
@@ -218,6 +217,7 @@ This project is in progress, syntax or interfaces might change at a later time. 
 ### v0.2
 * Renamed bits() to uint()
 * Added uint8, uint16, uint24 and uint32 types
+* uint(n) can now straddle byte boundaries
 
 ### v0.1
 * Initial release
