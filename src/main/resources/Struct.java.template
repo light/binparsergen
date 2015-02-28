@@ -19,6 +19,7 @@ public static class #name# {
     private String toString( String $indent ) {
         String $desc;
         StringBuilder $sb = new StringBuilder();
+        $sb.append( "\n" );
         ##strings#
         return $sb.toString();
     }
