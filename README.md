@@ -210,14 +210,22 @@ like this :
 
 ## Usage
 
-To use this library in your project, either use Maven :
+To use this library in your project, either use Maven and add the repository in your pom.xml :
 
+    <repositories>
+      <repository>
+        <id>bidouille.org</id>
+        <url>http://archiva.bidouille.org/archiva/repository/releases/</url>
+      </repository>
+    </repositories>
+    
+Then in your `<dependencies>` section :
+    
     <dependency>
       <groupId>org.bidouille.binparsergen</groupId>
       <artifactId>binparsergen</artifactId>
       <version>0.2</version>
     </dependency>
-
 
 Or grab the `jar` from the repository at this location : http://archiva.bidouille.org/archiva/repository/releases/org/bidouille/binparsergen/binparsergen/0.2/
 
