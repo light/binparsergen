@@ -93,7 +93,6 @@ public class BinParserGen {
             struct.write( writer, packageName );
             writer.close();
             String java = out.toString();
-            System.out.println( java );
 
             Class<?> clazz = MemoryCompiler.compile( packageName + "." + struct.name, java );
             classes.put( struct.name, clazz );

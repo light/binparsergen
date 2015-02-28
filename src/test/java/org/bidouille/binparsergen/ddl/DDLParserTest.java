@@ -207,17 +207,12 @@ public class DDLParserTest {
 
         parser.getInterpreter().setPredictionMode( PredictionMode.SLL );
         try {
-            System.out.println( "#### STAGE 1" );
             parser.struct(); // STAGE 1
-            System.out.println( "#### END STAGE 1" );
         } catch( Exception ex ) {
-            System.out.println( "#### FAIL STAGE 1" );
             tokens.reset(); // rewind input stream
             parser.reset();
             parser.getInterpreter().setPredictionMode( PredictionMode.LL );
-            System.out.println( "#### STAGE 2" );
             parser.struct(); // STAGE 2
-            System.out.println( "#### END STAGE 2" );
             // if we parse ok, it's LL not SLL
         }
 
